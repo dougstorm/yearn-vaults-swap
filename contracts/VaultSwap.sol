@@ -101,15 +101,9 @@ contract VaultSwap {
         uint256 balanceToken =
             token.balanceOf(address(this)).sub(preBalanceToken);
 
-        // Calculate remainings shares vaultFrom and transfer back
-        balanceVaultFrom = vf.balanceOf(address(this)).sub(preBalanceVaultFrom);
-
         // Deposit new vault
         token.safeIncreaseAllowance(vaultTo, balanceToken);
 
         IVaultAPI(vaultTo).deposit(balanceToken, msg.sender);
-
-        // Calculate remainings token and transfer back
-        balanceToken = token.balanceOf(address(this)).sub(preBalanceToken);
     }
 }

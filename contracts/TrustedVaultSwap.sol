@@ -3,12 +3,11 @@
 pragma solidity 0.6.12;
 
 import "./VaultSwap.sol";
+import "./Governable.sol";
 
 import "../interfaces/IRegistry.sol";
 
-contract TrustedVaultSwap is VaultSwap {
-    address public governance;
-    address public pendingGovernance;
+contract TrustedVaultSwap is VaultSwap, Governable {
     address public registry;
 
     modifier onlyRegisteredVault(address vault) {
@@ -19,25 +18,13 @@ contract TrustedVaultSwap is VaultSwap {
         _;
     }
 
-    modifier onlyGovernance {
-        require(
-            msg.sender == governance,
-            "Only governance can call this function."
-        );
-        _;
-    }
-    modifier onlyPendingGovernance {
-        require(
-            msg.sender == pendingGovernance,
-            "Only pendingGovernance can call this function."
-        );
-        _;
-    }
-
-    constructor(address _registry) public VaultSwap() {
+    constructor(address _registry)
+        public
+        VaultSwap()
+        Governable(address(0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52))
+    {
         require(_registry != address(0), "Registry cannot be 0");
 
-        governance = address(0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52);
         registry = _registry;
     }
 
@@ -56,18 +43,7 @@ contract TrustedVaultSwap is VaultSwap {
         );
     }
 
-    function acceptGovernance() external onlyPendingGovernance {
-        governance = msg.sender;
-    }
-
     // setters
-    function setPendingGovernance(address _pendingGovernance)
-        external
-        onlyGovernance
-    {
-        pendingGovernance = _pendingGovernance;
-    }
-
     function setRegistry(address _registry) external onlyGovernance {
         require(_registry != address(0), "Registry cannot be 0");
         registry = _registry;
